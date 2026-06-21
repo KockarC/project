@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Greenfoot-Bewertungsmappe EF – Symbolbewertung</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --paper:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#d9dee8;
+      --soft:#eef2f7;
+      --strong:#111827;
+      --accent:#2f5f8f;
+      --accent2:#eaf2fb;
+      --warn:#fff7ed;
+      --warnline:#fdba74;
+      --good:#ecfdf5;
+      --goodline:#86efac;
+      --bad:#fef2f2;
+      --badline:#fca5a5;
+      --shadow:0 10px 24px rgba(15,23,42,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
+    header{background:linear-gradient(135deg,#243b55,#315f88);color:white;padding:24px 28px}
+    header h1{margin:0 0 6px;font-size:1.55rem;letter-spacing:.01em}
+    header p{margin:0;color:#e7eef7;max-width:1100px}
+    .wrap{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px;padding:18px;max-width:1500px;margin:0 auto}
+    aside,.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    aside{padding:14px;align-self:start;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
+    main{min-width:0}
+    h2{font-size:1.25rem;margin:0 0 12px;color:var(--strong)}
+    h3{font-size:1.05rem;margin:20px 0 10px;color:var(--strong)}
+    h4{font-size:1rem;margin:14px 0 8px;color:var(--strong)}
+    .card{padding:18px;margin-bottom:18px}
+    .muted{color:var(--muted)}
+    .small{font-size:.9rem}
+    .tiny{font-size:.8rem}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;align-items:end}
+    .field{display:flex;flex-direction:column;gap:5px;min-width:0}
+    label{font-weight:650;font-size:.9rem;color:#263243}
+    input,select,textarea{width:100%;border:1px solid #cfd6e3;border-radius:10px;padding:9px 10px;font:inherit;background:#fff;color:var(--text)}
+    input[type="number"]{text-align:right}
+    textarea{min-height:74px;resize:vertical}
+    input:focus,select:focus,textarea:focus{outline:3px solid rgba(47,95,143,.18);border-color:#6d91b5}
+    .span2{grid-column:span 2}.span3{grid-column:span 3}.span4{grid-column:span 4}.span5{grid-column:span 5}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+    button{border:1px solid #cbd5e1;border-radius:999px;background:#fff;padding:9px 13px;font-weight:700;cursor:pointer;color:#182437}
+    button:hover{background:#f8fafc}
+    button.primary{background:var(--accent);border-color:var(--accent);color:white}
+    button.primary:hover{filter:brightness(.96)}
+    button.danger{background:#fff;border-color:#fecaca;color:#991b1b}
+    button.soft{background:var(--accent2);border-color:#bfd3e8;color:#174263}
+    button.smallbtn{padding:6px 9px;font-size:.85rem}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:.85rem;font-weight:650;color:#374151}
+    .pill.fixed{background:#eef6ff;border-color:#bed7ee;color:#173d5a}
+    .pill.good{background:var(--good);border-color:var(--goodline);color:#065f46}
+    .pill.warn{background:var(--warn);border-color:var(--warnline);color:#9a3412}
+    .pill.bad{background:var(--bad);border-color:var(--badline);color:#991b1b}
+    .group-list{display:flex;flex-direction:column;gap:7px;margin:10px 0 14px}
+    .group-item{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;cursor:pointer}
+    .group-item:hover{background:#f9fafb}
+    .group-item.active{border-color:#7aa4cc;background:#eef6ff}
+    .group-item .title{font-weight:800;color:#111827;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .group-item .sub{font-size:.8rem;color:var(--muted);margin-top:2px}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+    .metric{border:1px solid var(--line);border-radius:14px;background:#fbfcfe;padding:12px}
+    .metric .label{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}
+    .metric .value{font-size:1.5rem;font-weight:900;color:#172033;margin-top:3px}
+    .metric .note{font-size:.82rem;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;margin:8px 0 0;background:white}
+    th,td{border:1px solid var(--line);padding:8px 9px;vertical-align:top;text-align:left}
+    th{background:#f1f5f9;color:#1f2937;font-size:.88rem}
+    td input,td select,td textarea{border-radius:8px;padding:7px 8px}
+    .criteria-row{display:grid;grid-template-columns:minmax(260px,1fr) minmax(360px,auto) 120px;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding:12px 0}
+    .criteria-row:last-child{border-bottom:none}
+    .criteria-title{font-weight:750}
+    .criteria-help{font-size:.84rem;color:var(--muted);margin-top:3px}
+    .max{text-align:center;color:var(--muted);font-size:.85rem}
+    .rating{display:flex;gap:5px;flex-wrap:wrap;align-items:center;justify-content:flex-start}
+    .ratebtn{border-radius:12px;padding:7px 8px;font-size:.86rem;line-height:1;border:1px solid #cbd5e1;background:#fff;color:#334155;min-width:44px;text-align:center}
+    .ratebtn:hover{background:#f8fafc}
+    .ratebtn.active{background:#243b55;color:#fff;border-color:#243b55}
+    .rating-label{font-size:.8rem;color:var(--muted);margin-top:5px}
+    .stars{letter-spacing:.06em;white-space:nowrap;font-weight:900}
+    .notice{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fbfcfe;margin:10px 0}
+    .notice.warn{background:var(--warn);border-color:var(--warnline)}
+    .notice.good{background:var(--good);border-color:var(--goodline)}
+    .notice.bad{background:var(--bad);border-color:var(--badline)}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+    .tab{border-radius:999px;padding:8px 12px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:800}
+    .tab.active{background:#243b55;color:#fff;border-color:#243b55}
+    .section{display:none}.section.active{display:block}
+    .protocol{border:1px solid #cbd5e1;border-radius:14px;padding:16px;background:#fff;margin-top:14px}
+    .protocol h3{margin-top:0}
+    .protocol .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .protocol table{font-size:.92rem}
+    .status{font-size:.86rem;color:var(--muted);margin-top:8px}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#f3f4f6;border:1px solid #d1d5db;border-radius:6px;padding:1px 5px}
+    .hidden{display:none!important}
+    @media(max-width:980px){
+      .wrap{grid-template-columns:1fr}
+      aside{position:static;max-height:none}
+      .summary-grid{grid-template-columns:repeat(2,1fr)}
+      .span2,.span3,.span4,.span5,.span6,.span8,.span12{grid-column:span 12}
+      .criteria-row{grid-template-columns:1fr}
+    }
+    @media print{
+      body{background:white;color:black;font-size:11pt}
+      header,.no-print,aside,.tabs,.actions,button,input,select,textarea{display:none!important}
+      .wrap{display:block;padding:0;margin:0;max-width:none}
+      main{display:block}
+      .card{box-shadow:none;border:none;padding:0;margin:0}
+      .section{display:block!important}
+      .section:not(#printSection){display:none!important}
+      .protocol{border:none;padding:0;margin:0}
+      th{background:#eee!important;color:black}
+      table{page-break-inside:auto}
+      tr{page-break-inside:avoid;page-break-after:auto}
+      .page-break{page-break-before:always}
+      .pill{border:1px solid #999;background:white;color:black}
+      a{color:black;text-decoration:none}
+    }
+  </style>
+</head>
+<body>
+<header class="no-print">
+  <h1>Greenfoot-Bewertungsmappe EF</h1>
+  <p>Vortragsnote automatisch aus Symbolbewertungen berechnen, individuelle Tendenzen ableiten, Projektdateien separat erfassen, Gruppen navigieren und druckbare Protokolle erzeugen.</p>
+</header>
+<div class="wrap">
+  <aside class="no-print">
+    <div class="pill fixed">Kurs/Jahrgang: EF</div>
+    <h3>Gruppen</h3>
+    <div id="groupList" class="group-list"></div>
+    <div class="actions">
+      <button class="primary" id="newGroupBtn">Neue Gruppe</button>
+      <button id="saveBtn">Speichern</button>
+    </div>
+    <div id="saveStatus" class="status">Noch nicht gespeichert.</div>
+    <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+    <h3>Sicherung / Export</h3>
+    <div class="actions">
+      <button class="soft" id="downloadBackupBtn">JSON-Backup</button>
+      <label class="pill" style="cursor:pointer">Backup importieren<input type="file" id="importBackup" accept="application/json" style="display:none"></label>
+      <button class="soft" id="exportPeopleCsvBtn">Notenliste CSV</button>
+      <button class="soft" id="exportProjectCsvBtn">Projektdateien CSV</button>
+      <button id="printAllBtn">Gesamtprotokoll drucken</button>
+    </div>
+    <div class="notice warn small">
+      Empfehlung: Nach jeder Gruppe <b>„Gruppe abschließen / speichern“</b> nutzen. Es wird nichts automatisch heruntergeladen. Einzelprotokolle kannst du bei Bedarf drucken oder manuell exportieren.
+    </div>
+  </aside>
+
+  <main>
+    <div class="card no-print">
+      <div class="tabs">
+        <button class="tab active" data-tab="entrySection">Eingabe</button>
+        <button class="tab" data-tab="projectSection">Projektdateien</button>
+        <button class="tab" data-tab="overviewSection">Übersicht</button>
+        <button class="tab" data-tab="printSection">Druckansicht</button>
+      </div>
+
+      <section id="entrySection" class="section active">
+        <h2>1. Gruppe und Vortrag</h2>
+        <div class="row">
+          <div class="field span4">
+            <label for="groupName">Gruppenname / Projektname</label>
+            <input id="groupName" placeholder="z. B. Team Drachenwald">
+          </div>
+          <div class="field span2">
+            <label for="personCount">Personen</label>
+            <select id="personCount">
+              <option value="1">1 Person</option>
+              <option value="2">2 Personen</option>
+              <option value="3">3 Personen</option>
+              <option value="4">4 Personen</option>
+            </select>
+          </div>
+          <div class="field span3">
+            <label>Kurs/Jahrgang</label>
+            <div class="pill fixed" style="height:40px;justify-content:center">EF</div>
+          </div>
+          <div class="field span3">
+            <label for="dateField">Datum</label>
+            <input id="dateField" type="date">
+          </div>
+        </div>
+
+        <h3>Personen und individuelle Tendenzen</h3>
+        <div class="notice small">
+          Die individuelle Note geht von der automatisch berechneten Vortragsnote der Gruppe aus. Abweichungen werden nur über Tendenzen festgehalten. Der Sonderfall „kaum beteiligt / kaum erklärbar“ erlaubt eine bewusst abweichende Einzelnote.
+        </div>
+        <table id="peopleTable">
+          <thead>
+            <tr>
+              <th style="width:22%">Name</th>
+              <th style="width:20%">Tendenz</th>
+              <th style="width:14%">individuelle Vortragsnote</th>
+              <th>Kurzbegründung / Beobachtung</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <h3>Vortragskriterien</h3>
+        <div id="presentationCriteria"></div>
+
+        <div class="summary-grid">
+          <div class="metric"><div class="label">gewichtete Vortragspunkte</div><div class="value"><span id="presPoints">0</span>/<span id="presMax">30</span></div><div class="note">aus Symbolbewertungen</div></div>
+          <div class="metric"><div class="label">Erfüllung</div><div class="value"><span id="presPercent">0</span>%</div><div class="note">gerundet</div></div>
+          <div class="metric"><div class="label">Gruppen-Vortragsnote</div><div class="value" id="groupGrade">6</div><div class="note">automatisch</div></div>
+          <div class="metric"><div class="label">Stand</div><div class="value" id="completionStatus">offen</div><div class="note">lokal gespeichert</div></div>
+        </div>
+
+        <h3>Kommentar zum Vortrag</h3>
+        <textarea id="presentationComment" placeholder="z. B. Modell-Code-Zusammenhang gut erklärt; Live-Demo funktionierte; einzelne Rückfragen zu Vererbung unsicher ..."></textarea>
+        <div class="actions">
+          <button class="primary" id="finalizeBtn">Gruppe abschließen / speichern</button>
+          <button id="groupProtocolBtn">Protokoll als HTML herunterladen</button>
+          <button id="printCurrentBtn">Aktuelle Gruppe drucken</button>
+          <button class="danger" id="deleteGroupBtn">Gruppe löschen</button>
+        </div>
+      </section>
+
+      <section id="projectSection" class="section">
+        <h2>2. Projektdateien separat erfassen</h2>
+        <div class="notice small">
+          Dieser Bereich bewertet die abgegebenen Projektdateien unabhängig von der Vortragsnote. Er erzeugt ein Kriterienprofil und wird getrennt exportiert.
+        </div>
+        <div id="projectCriteria"></div>
+        <div class="summary-grid">
+          <div class="metric"><div class="label">Projektdateien</div><div class="value"><span id="projPoints">0</span>/<span id="projMax">40</span></div><div class="note">separat</div></div>
+          <div class="metric"><div class="label">Erfüllung</div><div class="value"><span id="projPercent">0</span>%</div><div class="note">nicht automatisch Vortragsnote</div></div>
+          <div class="metric"><div class="label">Profil</div><div class="value" id="projProfile">offen</div><div class="note">Rückmeldung</div></div>
+          <div class="metric"><div class="label">Kurs</div><div class="value">EF</div><div class="note">fest</div></div>
+        </div>
+        <h3>Kommentar zu Projektdateien</h3>
+        <textarea id="projectComment" placeholder="z. B. Diagramm nachvollziehbar, Code lauffähig, Dokumentation knapp, KI-Nutzung transparent ..."></textarea>
+      </section>
+
+      <section id="overviewSection" class="section">
+        <h2>3. Übersicht aller Gruppen</h2>
+        <div id="overview"></div>
+      </section>
+    </div>
+
+    <div class="card" id="printSectionCard">
+      <section id="printSection" class="section active">
+        <div id="printProtocol" class="protocol"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const LS_KEY = 'greenfoot_ef_bewertungsmappe_v3_sterne';
+  const presentationCriteria = [
+    {key:'struktur', label:'Struktur und Verständlichkeit des Vortrags', max:4, help:'roter Faden, klare Rollen, verständliche Darstellung'},
+    {key:'idee', label:'Projektidee und Ziel der interaktiven Welt', max:4, help:'Kontext, zentrale Objekte, Interaktionsidee'},
+    {key:'modell', label:'Modellierung und Implementationsdiagramm', max:6, help:'Klassen, Attribute, Methoden, Sichtbarkeiten, Beziehungen'},
+    {key:'modellcode', label:'Verbindung von Modell und Code', max:6, help:'konkrete Beispiele, keine reine Behauptung, Begriffe passend genutzt'},
+    {key:'demo', label:'Live-Vorführung und Mindestanforderungen', max:6, help:'bewegbares Objekt, Interaktionen, Kollision/Rand, Weltenwechsel'},
+    {key:'reflexion', label:'Reflexion von Entscheidungen und Projektverlauf', max:4, help:'Änderungen, Probleme, Grenzen, KI-Nutzung im Vortrag erklärbar'}
+  ];
+  const projectCriteria = [
+    {key:'vollstaendigkeit', label:'Vollständigkeit der Abgabe', max:5, help:'Greenfoot-Projekt, Dokumentation/PDF, Präsentation oder geeignetes Medium vorhanden'},
+    {key:'diagramm', label:'Finales Implementationsdiagramm in den Projektdateien', max:10, help:'Klassen, Attribute, Methoden, Beziehungen formal nachvollziehbar'},
+    {key:'code', label:'Code- und Projektstruktur', max:10, help:'lauffähige Dateien, sinnvolle Klassentrennung, lesbare Bezeichner, keine unnötigen Dopplungen'},
+    {key:'doku', label:'Dokumentation und Reflexion', max:10, help:'Grundidee, Veränderungen, Entscheidungen, Lernentwicklung, Zusammenarbeit'},
+    {key:'ki', label:'KI-Transparenz', max:5, help:'Übernahme, Anpassung und Eigenleistung nachvollziehbar kenntlich gemacht'}
+  ];
+  const gradeScale = ['1','1-','2+','2','2-','3+','3','3-','4+','4','4-','5+','5','5-','6'];
+  const baseIndex = {'1':0,'2':3,'3':6,'4':9,'5':12,'6':14};
+
+  let state = loadState();
+  let currentId = state.currentId || null;
+
+  function uid(){ return 'g_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function defaultGroup(){
+    const id = uid();
+    return {
+      id, course:'EF', name:'', date:today(), personCount:1,
+      people:[{name:'', tendency:'gleich', manualGrade:'4', comment:''}],
+      presentation:Object.fromEntries(presentationCriteria.map(c=>[c.key,0])),
+      project:Object.fromEntries(projectCriteria.map(c=>[c.key,0])),
+      presentationComment:'', projectComment:'', finalized:false, updatedAt:new Date().toISOString()
+    };
+  }
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.groups)) return parsed;
+      }
+    }catch(e){}
+    const g = defaultGroup();
+    return {groups:[g], currentId:g.id};
+  }
+  function saveState(){
+    const g = getCurrent();
+    if(g) g.updatedAt = new Date().toISOString();
+    state.currentId = currentId;
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    const el = document.getElementById('saveStatus');
+    el.textContent = 'Gespeichert: ' + new Date().toLocaleTimeString('de-DE');
+    renderGroupList(); renderOverview(); renderProtocol();
+  }
+  function getCurrent(){ return state.groups.find(g=>g.id===currentId) || state.groups[0]; }
+  function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+  function csvEscape(v){ return '"' + String(v ?? '').replace(/"/g,'""').replace(/\r?\n/g,' ') + '"'; }
+  function download(filename, content, type='text/plain;charset=utf-8'){
+    const blob = new Blob([content], {type});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+  }
+  function clampRating(v){ return Math.max(0, Math.min(4, Math.round(Number(v||0)))); }
+  function weightedValue(rating, weight){ return clampRating(rating) * weight / 4; }
+  function fmt(n){ return Number(n).toLocaleString('de-DE', {maximumFractionDigits:1}); }
+  function stars(n){
+    n = clampRating(n);
+    if(n===0) return '○○○○';
+    return '★'.repeat(n) + '☆'.repeat(4-n);
+  }
+  function ratingText(n){
+    return ['nicht bewertet / nicht erkennbar','Ansatz erkennbar','teilweise erfüllt','überwiegend erfüllt','sicher erfüllt'][clampRating(n)];
+  }
+  function sumCriteria(values, criteria){
+    let points = 0, max = 0;
+    criteria.forEach(c=>{ points += weightedValue(values[c.key], c.max); max += c.max; });
+    return {points, max, percent:max ? Math.round(points/max*100) : 0};
+  }
+  function gradeFromPercent(p){
+    if(p>=92) return '1';
+    if(p>=81) return '2';
+    if(p>=67) return '3';
+    if(p>=50) return '4';
+    if(p>=30) return '5';
+    return '6';
+  }
+  function profileFromPercent(p){
+    if(p>=85) return 'stark';
+    if(p>=70) return 'solide';
+    if(p>=50) return 'teilweise';
+    if(p>0) return 'schwach';
+    return 'offen';
+  }
+  function applyTendency(baseGrade, tendency, manual){
+    if(tendency === 'kaum') return manual || 'individuell';
+    let idx = baseIndex[baseGrade] ?? 14;
+    const shift = {gleich:0, plus: -1, plusplus:-2, minus:1, minusminus:2}[tendency] ?? 0;
+    idx = Math.max(0, Math.min(gradeScale.length-1, idx + shift));
+    return gradeScale[idx];
+  }
+  function tendencyLabel(v){
+    return ({gleich:'gleich', plus:'etwas stärker', plusplus:'deutlich stärker', minus:'etwas schwächer', minusminus:'deutlich schwächer', kaum:'kaum beteiligt / kaum erklärbar'}[v] || v);
+  }
+
+  function renderCriteria(containerId, criteria, values, prefix){
+    const container = document.getElementById(containerId);
+    container.innerHTML = criteria.map(c=>{
+      const rating = clampRating(values[c.key]);
+      const weighted = weightedValue(rating, c.max);
+      const buttons = [0,1,2,3,4].map(v=>`<button type="button" class="ratebtn ${rating===v?'active':''}" data-rate="${prefix}:${c.key}:${v}" title="${ratingText(v)}"><span class="stars">${stars(v)}</span></button>`).join('');
+      return `<div class="criteria-row">
+        <div><div class="criteria-title">${escapeHtml(c.label)}</div><div class="criteria-help">${escapeHtml(c.help)}</div></div>
+        <div><div class="rating">${buttons}</div><div class="rating-label">${escapeHtml(ratingText(rating))}</div></div>
+        <div class="max">Gewicht ${c.max}<br><strong>${fmt(weighted)}</strong> / ${c.max}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderGroupList(){
+    const list = document.getElementById('groupList');
+    list.innerHTML = state.groups.map((g,i)=>{
+      const s = sumCriteria(g.presentation, presentationCriteria);
+      const grade = gradeFromPercent(s.percent);
+      return `<div class="group-item ${g.id===currentId?'active':''}" data-group-id="${g.id}">
+        <div class="title"><span>${escapeHtml(g.name || 'Gruppe ' + (i+1))}</span><span class="pill ${g.finalized?'good':'warn'}">${g.finalized?'fertig':'offen'}</span></div>
+        <div class="sub">EF · ${g.personCount} Pers. · Vortrag: ${fmt(s.points)}/${s.max} gew. P. · Note ${grade}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderPeople(g){
+    const tbody = document.querySelector('#peopleTable tbody');
+    const pres = sumCriteria(g.presentation, presentationCriteria);
+    const base = gradeFromPercent(pres.percent);
+    tbody.innerHTML = g.people.slice(0,g.personCount).map((p,i)=>{
+      const indiv = applyTendency(base, p.tendency, p.manualGrade);
+      return `<tr>
+        <td><input data-person="name:${i}" value="${escapeHtml(p.name)}" placeholder="Name ${i+1}"></td>
+        <td><select data-person="tendency:${i}">
+          ${['gleich','plus','plusplus','minus','minusminus','kaum'].map(v=>`<option value="${v}" ${p.tendency===v?'selected':''}>${tendencyLabel(v)}</option>`).join('')}
+        </select>
+        <select data-person="manualGrade:${i}" class="${p.tendency==='kaum'?'':'hidden'}" style="margin-top:6px">
+          ${['1','2','3','4','5','6'].map(v=>`<option value="${v}" ${p.manualGrade===v?'selected':''}>Sondernote ${v}</option>`).join('')}
+        </select></td>
+        <td><strong>${escapeHtml(indiv)}</strong></td>
+        <td><textarea data-person="comment:${i}" placeholder="kurze Beobachtung">${escapeHtml(p.comment)}</textarea></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderForm(){
+    const g = getCurrent(); if(!g) return;
+    currentId = g.id;
+    document.getElementById('groupName').value = g.name || '';
+    document.getElementById('personCount').value = String(g.personCount || 1);
+    document.getElementById('dateField').value = g.date || today();
+    document.getElementById('presentationComment').value = g.presentationComment || '';
+    document.getElementById('projectComment').value = g.projectComment || '';
+    renderCriteria('presentationCriteria', presentationCriteria, g.presentation, 'pres');
+    renderCriteria('projectCriteria', projectCriteria, g.project, 'proj');
+    renderPeople(g);
+    updateMetrics(); renderGroupList(); renderOverview(); renderProtocol();
+  }
+
+  function updateMetrics(){
+    const g = getCurrent(); if(!g) return;
+    const ps = sumCriteria(g.presentation, presentationCriteria);
+    const pg = gradeFromPercent(ps.percent);
+    document.getElementById('presPoints').textContent = fmt(ps.points);
+    document.getElementById('presMax').textContent = ps.max;
+    document.getElementById('presPercent').textContent = ps.percent;
+    document.getElementById('groupGrade').textContent = pg;
+    document.getElementById('completionStatus').textContent = g.finalized ? 'fertig' : 'offen';
+    const pr = sumCriteria(g.project, projectCriteria);
+    document.getElementById('projPoints').textContent = fmt(pr.points);
+    document.getElementById('projMax').textContent = pr.max;
+    document.getElementById('projPercent').textContent = pr.percent;
+    document.getElementById('projProfile').textContent = profileFromPercent(pr.percent);
+    renderPeople(g);
+  }
+
+  function pullForm(){
+    const g = getCurrent(); if(!g) return;
+    g.name = document.getElementById('groupName').value.trim();
+    g.personCount = Number(document.getElementById('personCount').value);
+    g.date = document.getElementById('dateField').value || today();
+    while(g.people.length < g.personCount) g.people.push({name:'', tendency:'gleich', manualGrade:'4', comment:''});
+    g.people = g.people.slice(0,4);
+    g.presentationComment = document.getElementById('presentationComment').value;
+    g.projectComment = document.getElementById('projectComment').value;
+  }
+
+  function renderOverview(){
+    const root = document.getElementById('overview');
+    if(!state.groups.length){ root.innerHTML = '<p class="muted">Noch keine Gruppen angelegt.</p>'; return; }
+    const rows = state.groups.map((g,i)=>{
+      const ps = sumCriteria(g.presentation, presentationCriteria);
+      const pr = sumCriteria(g.project, projectCriteria);
+      const grade = gradeFromPercent(ps.percent);
+      return `<tr>
+        <td>${i+1}</td><td><strong>${escapeHtml(g.name || 'Gruppe ' + (i+1))}</strong><br><span class="tiny muted">${escapeHtml(g.date || '')}</span></td>
+        <td>${g.personCount}</td><td>${fmt(ps.points)}/${ps.max} (${ps.percent}%)</td><td><strong>${grade}</strong></td><td>${fmt(pr.points)}/${pr.max} (${pr.percent}%)</td><td>${escapeHtml(profileFromPercent(pr.percent))}</td><td>${g.finalized?'fertig':'offen'}</td>
+      </tr>`;
+    }).join('');
+    root.innerHTML = `<table><thead><tr><th>#</th><th>Gruppe</th><th>Pers.</th><th>Vortrag</th><th>Note</th><th>Projektdateien</th><th>Profil</th><th>Stand</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function protocolHtml(g, standalone=false){
+    const ps = sumCriteria(g.presentation, presentationCriteria);
+    const pr = sumCriteria(g.project, projectCriteria);
+    const baseGrade = gradeFromPercent(ps.percent);
+    const peopleRows = g.people.slice(0,g.personCount).map((p,i)=>`<tr><td>${escapeHtml(p.name || 'Person ' + (i+1))}</td><td>${escapeHtml(tendencyLabel(p.tendency))}</td><td><strong>${escapeHtml(applyTendency(baseGrade,p.tendency,p.manualGrade))}</strong></td><td>${escapeHtml(p.comment)}</td></tr>`).join('');
+    const presRows = presentationCriteria.map(c=>`<tr><td>${escapeHtml(c.label)}</td><td><span class="stars">${stars(g.presentation[c.key])}</span> (${clampRating(g.presentation[c.key])}/4) · gewichtet: ${fmt(weightedValue(g.presentation[c.key], c.max))} / ${c.max}</td></tr>`).join('');
+    const projRows = projectCriteria.map(c=>`<tr><td>${escapeHtml(c.label)}</td><td><span class="stars">${stars(g.project[c.key])}</span> (${clampRating(g.project[c.key])}/4) · gewichtet: ${fmt(weightedValue(g.project[c.key], c.max))} / ${c.max}</td></tr>`).join('');
+    const body = `<div class="protocol">
+      <h3>Bewertungsprotokoll Greenfoot-Projekt</h3>
+      <div class="meta"><span class="pill fixed">EF</span><span class="pill">${escapeHtml(g.name || 'unbenannte Gruppe')}</span><span class="pill">Datum: ${escapeHtml(g.date || '')}</span><span class="pill ${g.finalized?'good':'warn'}">${g.finalized?'abgeschlossen':'offen'}</span></div>
+      <h4>Vortrag: automatisch berechnete Note aus Symbolbewertung</h4>
+      <table><tbody><tr><th>gewichtete Vortragspunkte</th><td>${fmt(ps.points)} / ${ps.max}</td><th>Erfüllung</th><td>${ps.percent}%</td><th>Gruppen-Vortragsnote</th><td><strong>${baseGrade}</strong></td></tr></tbody></table>
+      <table><thead><tr><th>Vortragskriterium</th><th>Bewertung / Gewichtung</th></tr></thead><tbody>${presRows}</tbody></table>
+      <h4>Individuelle Tendenzen</h4>
+      <table><thead><tr><th>Name</th><th>Tendenz</th><th>individuelle Vortragsnote</th><th>Kurzbegründung</th></tr></thead><tbody>${peopleRows}</tbody></table>
+      <h4>Kommentar zum Vortrag</h4><p>${escapeHtml(g.presentationComment).replace(/\n/g,'<br>') || '<span class="muted">kein Kommentar</span>'}</p>
+      <h4>Projektdateien: separates Kriterienprofil</h4>
+      <table><tbody><tr><th>Projektdateien</th><td>${fmt(pr.points)} / ${pr.max}</td><th>Erfüllung</th><td>${pr.percent}%</td><th>Profil</th><td><strong>${escapeHtml(profileFromPercent(pr.percent))}</strong></td></tr></tbody></table>
+      <table><thead><tr><th>Kriterium Projektdateien</th><th>Bewertung / Gewichtung</th></tr></thead><tbody>${projRows}</tbody></table>
+      <h4>Kommentar zu Projektdateien</h4><p>${escapeHtml(g.projectComment).replace(/\n/g,'<br>') || '<span class="muted">kein Kommentar</span>'}</p>
+    </div>`;
+    if(!standalone) return body;
+    return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Bewertungsprotokoll ${escapeHtml(g.name || 'Gruppe')}</title><style>
+      body{font-family:Arial,sans-serif;line-height:1.4;color:#111;margin:24px}.protocol{max-width:980px;margin:0 auto}h3{font-size:22px;margin:0 0 12px}h4{margin:20px 0 8px}table{width:100%;border-collapse:collapse;margin:8px 0 14px}th,td{border:1px solid #bbb;padding:7px 8px;text-align:left;vertical-align:top}th{background:#eee}.pill{display:inline-block;border:1px solid #bbb;border-radius:999px;padding:4px 8px;margin:0 5px 5px 0;font-weight:bold}.fixed{background:#eef6ff}.good{background:#ecfdf5}.warn{background:#fff7ed}.muted{color:#666}@media print{body{margin:12mm;font-size:11pt}}
+    </style></head><body>${body}</body></html>`;
+  }
+
+  function renderProtocol(){
+    const g = getCurrent(); if(!g) return;
+    document.getElementById('printProtocol').innerHTML = protocolHtml(g);
+  }
+
+  function currentFileSlug(g){
+    const base = (g.name || 'gruppe').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'gruppe';
+    return base;
+  }
+
+  function downloadGroupProtocol(g){
+    download(`greenfoot_ef_protokoll_${currentFileSlug(g)}.html`, protocolHtml(g,true), 'text/html;charset=utf-8');
+  }
+
+  function peopleCsv(){
+    const rows = [['Gruppe','Kurs','Datum','Person','Vortrag Punkte','Vortrag Max','Vortrag Prozent','Gruppen-Vortragsnote','Tendenz','Individuelle Vortragsnote','Begründung','Projektdateien Punkte','Projektdateien Max','Projektdateien Prozent','Projektdateien Profil','Kommentar Vortrag','Kommentar Projektdateien']];
+    state.groups.forEach(g=>{
+      const ps=sumCriteria(g.presentation,presentationCriteria), pr=sumCriteria(g.project,projectCriteria), base=gradeFromPercent(ps.percent);
+      g.people.slice(0,g.personCount).forEach((p,i)=>rows.push([
+        g.name||'', 'EF', g.date||'', p.name||`Person ${i+1}`, fmt(ps.points), ps.max, ps.percent, base, tendencyLabel(p.tendency), applyTendency(base,p.tendency,p.manualGrade), p.comment||'', fmt(pr.points), pr.max, pr.percent, profileFromPercent(pr.percent), g.presentationComment||'', g.projectComment||''
+      ]));
+    });
+    return '\ufeff' + rows.map(r=>r.map(csvEscape).join(';')).join('\n');
+  }
+  function projectCsv(){
+    const header = ['Gruppe','Kurs','Datum'];
+    projectCriteria.forEach(c=>{ header.push(c.label + ' Bewertung 0-4'); header.push(c.label + ' Symbol'); header.push(c.label + ' Gewicht'); });
+    header.push('Projektdateien gewichtete Punkte','Projektdateien Max','Projektdateien Prozent','Projektdateien Profil','Kommentar Projektdateien');
+    const rows=[header];
+    state.groups.forEach(g=>{
+      const pr=sumCriteria(g.project,projectCriteria);
+      const row=[g.name||'', 'EF', g.date||''];
+      projectCriteria.forEach(c=>{ row.push(clampRating(g.project[c.key])); row.push(stars(g.project[c.key])); row.push(c.max); });
+      row.push(fmt(pr.points),pr.max,pr.percent,profileFromPercent(pr.percent),g.projectComment||'');
+      rows.push(row);
+    });
+    return '\ufeff' + rows.map(r=>r.map(csvEscape).join(';')).join('\n');
+  }
+
+  function printHtmlAll(){
+    return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Gesamtprotokoll Greenfoot EF</title><style>
+      body{font-family:Arial,sans-serif;margin:18px;color:#111;line-height:1.35}h1{font-size:24px}h3{font-size:19px;margin:0 0 10px}h4{margin:16px 0 7px}.protocol{page-break-after:always;margin-bottom:30px}.protocol:last-child{page-break-after:auto}table{width:100%;border-collapse:collapse;margin:8px 0 14px}th,td{border:1px solid #bbb;padding:6px 7px;text-align:left;vertical-align:top}th{background:#eee}.pill{display:inline-block;border:1px solid #aaa;border-radius:999px;padding:3px 7px;margin:0 4px 4px 0;font-weight:bold}.fixed{background:#eef6ff}.good{background:#ecfdf5}.warn{background:#fff7ed}.muted{color:#666}@media print{body{margin:10mm;font-size:10.5pt}}
+    </style></head><body><h1>Gesamtprotokoll Greenfoot-Projekt EF</h1>${state.groups.map(g=>protocolHtml(g,false)).join('')}</body></html>`;
+  }
+
+  // Events
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-rate]');
+    if(!btn) return;
+    const g = getCurrent(); if(!g) return;
+    const [prefix,key,vals] = btn.dataset.rate.split(':');
+    const val = clampRating(vals);
+    if(prefix==='pres') g.presentation[key]=val; else g.project[key]=val;
+    g.finalized = false;
+    saveState();
+    renderForm();
+  });
+
+  document.addEventListener('input', (e)=>{
+    const t=e.target; const g=getCurrent(); if(!g) return;
+    if(t.id==='groupName' || t.id==='personCount' || t.id==='dateField' || t.id==='presentationComment' || t.id==='projectComment'){
+      pullForm(); updateMetrics(); saveState(); return;
+    }
+    if(t.dataset.person){
+      const [field,idxs]=t.dataset.person.split(':'); const idx=Number(idxs);
+      if(!g.people[idx]) return;
+      g.people[idx][field]=t.value;
+      updateMetrics(); saveState(); return;
+    }
+  });
+  document.addEventListener('change', (e)=>{
+    const t=e.target; const g=getCurrent(); if(!g) return;
+    if(t.id==='personCount') { pullForm(); renderPeople(g); saveState(); }
+    if(t.dataset.person){
+      const [field,idxs]=t.dataset.person.split(':'); const idx=Number(idxs);
+      if(g.people[idx]){ g.people[idx][field]=t.value; renderPeople(g); saveState(); }
+    }
+  });
+  document.getElementById('groupList').addEventListener('click', e=>{
+    const item=e.target.closest('.group-item'); if(!item) return;
+    pullForm(); saveState(); currentId=item.dataset.groupId; renderForm();
+  });
+  document.getElementById('newGroupBtn').addEventListener('click', ()=>{
+    pullForm(); saveState(); const g=defaultGroup(); state.groups.push(g); currentId=g.id; saveState(); renderForm();
+  });
+  document.getElementById('saveBtn').addEventListener('click', ()=>{ pullForm(); saveState(); });
+  document.getElementById('deleteGroupBtn').addEventListener('click', ()=>{
+    if(state.groups.length<=1){ alert('Mindestens eine Gruppe bleibt erhalten.'); return; }
+    const g=getCurrent(); if(!confirm(`Gruppe „${g.name || 'unbenannt'}“ wirklich löschen?`)) return;
+    state.groups=state.groups.filter(x=>x.id!==g.id); currentId=state.groups[0].id; saveState(); renderForm();
+  });
+  document.getElementById('finalizeBtn').addEventListener('click', ()=>{
+    pullForm(); const g=getCurrent(); g.finalized=true; saveState(); renderProtocol();
+    document.getElementById('saveStatus').textContent = 'Gruppe abgeschlossen und lokal gespeichert: ' + new Date().toLocaleTimeString('de-DE');
+  });
+  document.getElementById('groupProtocolBtn').addEventListener('click', ()=>{ pullForm(); saveState(); downloadGroupProtocol(getCurrent()); });
+  document.getElementById('printCurrentBtn').addEventListener('click', ()=>{ pullForm(); saveState(); window.print(); });
+  document.getElementById('downloadBackupBtn').addEventListener('click', ()=>{ pullForm(); saveState(); download('greenfoot_ef_bewertungsmappe_backup.json', JSON.stringify(state,null,2), 'application/json;charset=utf-8'); });
+  document.getElementById('importBackup').addEventListener('change', (e)=>{
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader(); reader.onload=()=>{
+      try{
+        const parsed=JSON.parse(reader.result);
+        if(!parsed || !Array.isArray(parsed.groups)) throw new Error('Ungültiges Backup');
+        state=parsed; currentId=parsed.currentId || parsed.groups[0]?.id; saveState(); renderForm(); alert('Backup importiert.');
+      }catch(err){ alert('Backup konnte nicht gelesen werden.'); }
+    }; reader.readAsText(file);
+  });
+  document.getElementById('exportPeopleCsvBtn').addEventListener('click', ()=>{ pullForm(); saveState(); download('greenfoot_ef_notenliste_personen.csv', peopleCsv(), 'text/csv;charset=utf-8'); });
+  document.getElementById('exportProjectCsvBtn').addEventListener('click', ()=>{ pullForm(); saveState(); download('greenfoot_ef_projektdateien.csv', projectCsv(), 'text/csv;charset=utf-8'); });
+  document.getElementById('printAllBtn').addEventListener('click', ()=>{
+    pullForm(); saveState(); const w=window.open('', '_blank');
+    if(!w){ download('greenfoot_ef_gesamtprotokoll.html', printHtmlAll(), 'text/html;charset=utf-8'); return; }
+    w.document.open(); w.document.write(printHtmlAll()); w.document.close(); w.focus(); setTimeout(()=>w.print(), 300);
+  });
+  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+  }));
+
+  // Initial
+  if(!currentId || !state.groups.find(g=>g.id===currentId)) currentId=state.groups[0].id;
+  renderForm(); saveState();
+})();
+</script>
+</body>
+</html>
