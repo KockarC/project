@@ -27,8 +27,7 @@
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
     header{background:linear-gradient(135deg,#243b55,#315f88);color:white;padding:24px 28px}
-    header h1{margin:0 0 6px;font-size:1.55rem;letter-spacing:.01em}
-    header p{margin:0;color:#e7eef7;max-width:1100px}
+    header h1{margin:0;font-size:1.55rem;letter-spacing:.01em}
     .wrap{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px;padding:18px;max-width:1500px;margin:0 auto}
     aside,.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
     aside{padding:14px;align-self:start;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
@@ -130,7 +129,6 @@
 <body>
 <header class="no-print">
   <h1>Greenfoot-Bewertungsmappe EF</h1>
-  <p>Vortragsnote automatisch aus Symbolbewertungen berechnen, individuelle Tendenzen ableiten, Projektdateien separat erfassen, Gruppen navigieren und druckbare Protokolle erzeugen.</p>
 </header>
 <div class="wrap">
   <aside class="no-print">
@@ -211,7 +209,7 @@
         <div id="presentationCriteria"></div>
 
         <div class="summary-grid">
-          <div class="metric"><div class="label">gewichtete Vortragspunkte</div><div class="value"><span id="presPoints">0</span>/<span id="presMax">30</span></div><div class="note">aus Symbolbewertungen</div></div>
+          <div class="metric"><div class="label">gewichtete Vortragspunkte</div><div class="value"><span id="presPoints">0</span>/<span id="presMax">30</span></div><div class="note">aus Kriterien</div></div>
           <div class="metric"><div class="label">Erfüllung</div><div class="value"><span id="presPercent">0</span>%</div><div class="note">gerundet</div></div>
           <div class="metric"><div class="label">Gruppen-Vortragsnote</div><div class="value" id="groupGrade">6</div><div class="note">automatisch</div></div>
           <div class="metric"><div class="label">Stand</div><div class="value" id="completionStatus">offen</div><div class="note">lokal gespeichert</div></div>
@@ -479,14 +477,14 @@
       <h3>Bewertungsprotokoll Greenfoot-Projekt</h3>
       <div class="meta"><span class="pill fixed">EF</span><span class="pill">${escapeHtml(g.name || 'unbenannte Gruppe')}</span><span class="pill">Datum: ${escapeHtml(g.date || '')}</span><span class="pill ${g.finalized?'good':'warn'}">${g.finalized?'abgeschlossen':'offen'}</span></div>
       <h4>Vortrag: automatisch berechnete Note aus Symbolbewertung</h4>
-      <table><tbody><tr><th>gewichtete Vortragspunkte</th><td>${fmt(ps.points)} / ${ps.max}</td><th>Erfüllung</th><td>${ps.percent}%</td><th>Gruppen-Vortragsnote</th><td><strong>${baseGrade}</strong></td></tr></tbody></table>
-      <table><thead><tr><th>Vortragskriterium</th><th>Bewertung / Gewichtung</th></tr></thead><tbody>${presRows}</tbody></table>
+      <table><tbody><tr><th>gewichtete Vortragspunkte</th><td>${ps.points} / ${ps.max}</td><th>Erfüllung</th><td>${ps.percent}%</td><th>Gruppen-Vortragsnote</th><td><strong>${baseGrade}</strong></td></tr></tbody></table>
+      <table><thead><tr><th>Vortragskriterium</th><th>Punkte</th></tr></thead><tbody>${presRows}</tbody></table>
       <h4>Individuelle Tendenzen</h4>
       <table><thead><tr><th>Name</th><th>Tendenz</th><th>individuelle Vortragsnote</th><th>Kurzbegründung</th></tr></thead><tbody>${peopleRows}</tbody></table>
       <h4>Kommentar zum Vortrag</h4><p>${escapeHtml(g.presentationComment).replace(/\n/g,'<br>') || '<span class="muted">kein Kommentar</span>'}</p>
       <h4>Projektdateien: separates Kriterienprofil</h4>
       <table><tbody><tr><th>Projektdateien</th><td>${fmt(pr.points)} / ${pr.max}</td><th>Erfüllung</th><td>${pr.percent}%</td><th>Profil</th><td><strong>${escapeHtml(profileFromPercent(pr.percent))}</strong></td></tr></tbody></table>
-      <table><thead><tr><th>Kriterium Projektdateien</th><th>Bewertung / Gewichtung</th></tr></thead><tbody>${projRows}</tbody></table>
+      <table><thead><tr><th>Kriterium Projektdateien</th><th>Punkte</th></tr></thead><tbody>${projRows}</tbody></table>
       <h4>Kommentar zu Projektdateien</h4><p>${escapeHtml(g.projectComment).replace(/\n/g,'<br>') || '<span class="muted">kein Kommentar</span>'}</p>
     </div>`;
     if(!standalone) return body;
@@ -522,13 +520,13 @@
   function projectCsv(){
     const header = ['Gruppe','Kurs','Datum'];
     projectCriteria.forEach(c=>{ header.push(c.label + ' Bewertung 0-4'); header.push(c.label + ' Symbol'); header.push(c.label + ' Gewicht'); });
-    header.push('Projektdateien gewichtete Punkte','Projektdateien Max','Projektdateien Prozent','Projektdateien Profil','Kommentar Projektdateien');
+    header.push('Projektdateien Punkte','Projektdateien Max','Projektdateien Prozent','Projektdateien Profil','Kommentar Projektdateien');
     const rows=[header];
     state.groups.forEach(g=>{
       const pr=sumCriteria(g.project,projectCriteria);
       const row=[g.name||'', 'EF', g.date||''];
       projectCriteria.forEach(c=>{ row.push(clampRating(g.project[c.key])); row.push(stars(g.project[c.key])); row.push(c.max); });
-      row.push(fmt(pr.points),pr.max,pr.percent,profileFromPercent(pr.percent),g.projectComment||'');
+      row.push(pr.points,pr.max,pr.percent,profileFromPercent(pr.percent),g.projectComment||'');
       rows.push(row);
     });
     return '\ufeff' + rows.map(r=>r.map(csvEscape).join(';')).join('\n');
