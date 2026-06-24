@@ -146,7 +146,7 @@
       <button class="soft" id="downloadBackupBtn">JSON-Backup</button>
       <label class="pill" style="cursor:pointer">Backup importieren<input type="file" id="importBackup" accept="application/json" style="display:none"></label>
       <button class="soft" id="exportPeopleCsvBtn">Notenliste CSV</button>
-      <button class="soft" id="exportProjectCsvBtn">Projektdateien CSV</button>
+      <button class="soft" id="exportProjectCsvBtn">Projektabgabe CSV</button>
       <button id="printAllBtn">Gesamtprotokoll drucken</button>
     </div>
     <div class="notice warn small">
@@ -158,7 +158,7 @@
     <div class="card no-print">
       <div class="tabs">
         <button class="tab active" data-tab="entrySection">Eingabe</button>
-        <button class="tab" data-tab="projectSection">Projektdateien</button>
+        <button class="tab" data-tab="projectSection">Projektabgabe</button>
         <button class="tab" data-tab="overviewSection">Übersicht</button>
         <button class="tab" data-tab="printSection">Druckansicht</button>
       </div>
@@ -191,14 +191,14 @@
 
         <h3>Personen und individuelle Tendenzen</h3>
         <div class="notice small">
-          Die individuelle Note geht von der automatisch berechneten Vortragsnote der Gruppe aus. Abweichungen werden nur über Tendenzen festgehalten. Der Sonderfall „kaum beteiligt / kaum erklärbar“ erlaubt eine bewusst abweichende Einzelnote.
+          Die individuelle Endnote geht von der automatisch berechneten Gesamtnote des Projekts aus. Vortrag und Projektabgabe werden zusammengeführt. Abweichungen werden nur über Tendenzen festgehalten. Der Sonderfall „kaum beteiligt / kaum erklärbar“ erlaubt eine bewusst abweichende Einzelnote.
         </div>
         <table id="peopleTable">
           <thead>
             <tr>
               <th style="width:22%">Name</th>
               <th style="width:20%">Tendenz</th>
-              <th style="width:14%">individuelle Vortragsnote</th>
+              <th style="width:14%">individuelle Endnote</th>
               <th>Kurzbegründung / Beobachtung</th>
             </tr>
           </thead>
@@ -211,8 +211,8 @@
         <div class="summary-grid">
           <div class="metric"><div class="label">gewichtete Vortragspunkte</div><div class="value"><span id="presPoints">0</span>/<span id="presMax">30</span></div><div class="note">aus Kriterien</div></div>
           <div class="metric"><div class="label">Erfüllung</div><div class="value"><span id="presPercent">0</span>%</div><div class="note">gerundet</div></div>
-          <div class="metric"><div class="label">Gruppen-Vortragsnote</div><div class="value" id="groupGrade">6</div><div class="note">automatisch</div></div>
-          <div class="metric"><div class="label">Stand</div><div class="value" id="completionStatus">offen</div><div class="note">lokal gespeichert</div></div>
+          <div class="metric"><div class="label">Gruppen-Vortragsnote</div><div class="value" id="groupGrade">6</div><div class="note">Vortrag separat</div></div>
+          <div class="metric"><div class="label">Gesamtnote Projekt</div><div class="value" id="overallGrade">6</div><div class="note"><span id="overallPercent">0</span>% · Vortrag 40 %, Abgabe 60 %</div></div>
         </div>
 
         <h3>Kommentar zum Vortrag</h3>
@@ -226,18 +226,18 @@
       </section>
 
       <section id="projectSection" class="section">
-        <h2>2. Projektdateien separat erfassen</h2>
+        <h2>2. Projektabgabe separat erfassen</h2>
         <div class="notice small">
-          Dieser Bereich bewertet die abgegebenen Projektdateien unabhängig von der Vortragsnote. Er erzeugt ein Kriterienprofil und wird getrennt exportiert.
+          Dieser Bereich bewertet die abgegebene Projektdatei separat. Für die Endnote werden Vortrag und Projektabgabe anschließend gewichtet zusammengeführt.
         </div>
         <div id="projectCriteria"></div>
         <div class="summary-grid">
-          <div class="metric"><div class="label">Projektdateien</div><div class="value"><span id="projPoints">0</span>/<span id="projMax">40</span></div><div class="note">separat</div></div>
-          <div class="metric"><div class="label">Erfüllung</div><div class="value"><span id="projPercent">0</span>%</div><div class="note">nicht automatisch Vortragsnote</div></div>
-          <div class="metric"><div class="label">Profil</div><div class="value" id="projProfile">offen</div><div class="note">Rückmeldung</div></div>
-          <div class="metric"><div class="label">Kurs</div><div class="value">EF</div><div class="note">fest</div></div>
+          <div class="metric"><div class="label">Projektabgabe</div><div class="value"><span id="projPoints">0</span>/<span id="projMax">40</span></div><div class="note">separat erfasst</div></div>
+          <div class="metric"><div class="label">Erfüllung Projektabgabe</div><div class="value"><span id="projPercent">0</span>%</div><div class="note">fließt mit 60 % ein</div></div>
+          <div class="metric"><div class="label">Bewertungsstufe Projektabgabe</div><div class="value" id="projProfile">offen</div><div class="note">nach Notenstufen</div></div>
+          <div class="metric"><div class="label">Gesamtnote Projekt</div><div class="value" id="overallGradeProject">6</div><div class="note"><span id="overallPercentProject">0</span>% · Vortrag 40 %, Abgabe 60 %</div></div>
         </div>
-        <h3>Kommentar zu Projektdateien</h3>
+        <h3>Kommentar zur Projektabgabe</h3>
         <textarea id="projectComment" placeholder="z. B. Diagramm nachvollziehbar, Code lauffähig, Dokumentation knapp, KI-Nutzung transparent ..."></textarea>
       </section>
 
@@ -257,7 +257,7 @@
 
 <script>
 (function(){
-  const LS_KEY = 'greenfoot_ef_bewertungsmappe_v3_sterne';
+  const LS_KEY = 'greenfoot_ef_bewertungsmappe_v5_gesamt_40_60';
   const presentationCriteria = [
     {key:'struktur', label:'Struktur und Verständlichkeit des Vortrags', max:4, help:'roter Faden, klare Rollen, verständliche Darstellung'},
     {key:'idee', label:'Projektidee und Ziel der interaktiven Welt', max:4, help:'Kontext, zentrale Objekte, Interaktionsidee'},
@@ -268,7 +268,7 @@
   ];
   const projectCriteria = [
     {key:'vollstaendigkeit', label:'Vollständigkeit der Abgabe', max:5, help:'Greenfoot-Projekt, Dokumentation/PDF, Präsentation oder geeignetes Medium vorhanden'},
-    {key:'diagramm', label:'Finales Implementationsdiagramm in den Projektdateien', max:10, help:'Klassen, Attribute, Methoden, Beziehungen formal nachvollziehbar'},
+    {key:'diagramm', label:'Finales Implementationsdiagramm in der Projektabgabe', max:10, help:'Klassen, Attribute, Methoden, Beziehungen formal nachvollziehbar'},
     {key:'code', label:'Code- und Projektstruktur', max:10, help:'lauffähige Dateien, sinnvolle Klassentrennung, lesbare Bezeichner, keine unnötigen Dopplungen'},
     {key:'doku', label:'Dokumentation und Reflexion', max:10, help:'Grundidee, Veränderungen, Entscheidungen, Lernentwicklung, Zusammenarbeit'},
     {key:'ki', label:'KI-Transparenz', max:5, help:'Übernahme, Anpassung und Eigenleistung nachvollziehbar kenntlich gemacht'}
@@ -346,11 +346,19 @@
     return '6';
   }
   function profileFromPercent(p){
-    if(p>=85) return 'stark';
-    if(p>=70) return 'solide';
-    if(p>=50) return 'teilweise';
-    if(p>0) return 'schwach';
+    if(p>=92) return 'sehr gut';
+    if(p>=81) return 'gut';
+    if(p>=67) return 'befriedigend';
+    if(p>=50) return 'ausreichend';
+    if(p>=30) return 'mangelhaft';
+    if(p>0) return 'ungenügend';
     return 'offen';
+  }
+  function overallResult(g){
+    const ps = sumCriteria(g.presentation, presentationCriteria);
+    const pr = sumCriteria(g.project, projectCriteria);
+    const percent = Math.round(ps.percent * 0.4 + pr.percent * 0.6);
+    return {percent, grade: gradeFromPercent(percent), presentation: ps, project: pr};
   }
   function applyTendency(baseGrade, tendency, manual){
     if(tendency === 'kaum') return manual || 'individuell';
@@ -381,18 +389,19 @@
     const list = document.getElementById('groupList');
     list.innerHTML = state.groups.map((g,i)=>{
       const s = sumCriteria(g.presentation, presentationCriteria);
-      const grade = gradeFromPercent(s.percent);
+      const overall = overallResult(g);
+      const grade = overall.grade;
       return `<div class="group-item ${g.id===currentId?'active':''}" data-group-id="${g.id}">
         <div class="title"><span>${escapeHtml(g.name || 'Gruppe ' + (i+1))}</span><span class="pill ${g.finalized?'good':'warn'}">${g.finalized?'fertig':'offen'}</span></div>
-        <div class="sub">EF · ${g.personCount} Pers. · Vortrag: ${fmt(s.points)}/${s.max} gew. P. · Note ${grade}</div>
+        <div class="sub">EF · ${g.personCount} Pers. · Vortrag: ${fmt(s.points)}/${s.max} · Gesamt: ${overall.percent}% · Note ${grade}</div>
       </div>`;
     }).join('');
   }
 
   function renderPeople(g){
     const tbody = document.querySelector('#peopleTable tbody');
-    const pres = sumCriteria(g.presentation, presentationCriteria);
-    const base = gradeFromPercent(pres.percent);
+    const overall = overallResult(g);
+    const base = overall.grade;
     tbody.innerHTML = g.people.slice(0,g.personCount).map((p,i)=>{
       const indiv = applyTendency(base, p.tendency, p.manualGrade);
       return `<tr>
@@ -423,7 +432,8 @@
     updateMetrics(); renderGroupList(); renderOverview(); renderProtocol();
   }
 
-  function updateMetrics(){
+  function updateMetrics(options){
+    const shouldRenderPeople = options && options.renderPeople;
     const g = getCurrent(); if(!g) return;
     const ps = sumCriteria(g.presentation, presentationCriteria);
     const pg = gradeFromPercent(ps.percent);
@@ -431,13 +441,17 @@
     document.getElementById('presMax').textContent = ps.max;
     document.getElementById('presPercent').textContent = ps.percent;
     document.getElementById('groupGrade').textContent = pg;
-    document.getElementById('completionStatus').textContent = g.finalized ? 'fertig' : 'offen';
+    const ov = overallResult(g);
+    const og = document.getElementById('overallGrade'); if(og) og.textContent = ov.grade;
+    const op = document.getElementById('overallPercent'); if(op) op.textContent = ov.percent;
+    const ogp = document.getElementById('overallGradeProject'); if(ogp) ogp.textContent = ov.grade;
+    const opp = document.getElementById('overallPercentProject'); if(opp) opp.textContent = ov.percent;
     const pr = sumCriteria(g.project, projectCriteria);
     document.getElementById('projPoints').textContent = fmt(pr.points);
     document.getElementById('projMax').textContent = pr.max;
     document.getElementById('projPercent').textContent = pr.percent;
     document.getElementById('projProfile').textContent = profileFromPercent(pr.percent);
-    renderPeople(g);
+    if(shouldRenderPeople) renderPeople(g);
   }
 
   function pullForm(){
@@ -457,19 +471,21 @@
     const rows = state.groups.map((g,i)=>{
       const ps = sumCriteria(g.presentation, presentationCriteria);
       const pr = sumCriteria(g.project, projectCriteria);
+      const overall = overallResult(g);
       const grade = gradeFromPercent(ps.percent);
       return `<tr>
         <td>${i+1}</td><td><strong>${escapeHtml(g.name || 'Gruppe ' + (i+1))}</strong><br><span class="tiny muted">${escapeHtml(g.date || '')}</span></td>
-        <td>${g.personCount}</td><td>${fmt(ps.points)}/${ps.max} (${ps.percent}%)</td><td><strong>${grade}</strong></td><td>${fmt(pr.points)}/${pr.max} (${pr.percent}%)</td><td>${escapeHtml(profileFromPercent(pr.percent))}</td><td>${g.finalized?'fertig':'offen'}</td>
+        <td>${g.personCount}</td><td>${fmt(ps.points)}/${ps.max} (${ps.percent}%)</td><td><strong>${grade}</strong></td><td>${fmt(pr.points)}/${pr.max} (${pr.percent}%)</td><td>${escapeHtml(profileFromPercent(pr.percent))}</td><td><strong>${overall.grade}</strong> (${overall.percent}%)</td><td>${g.finalized?'fertig':'offen'}</td>
       </tr>`;
     }).join('');
-    root.innerHTML = `<table><thead><tr><th>#</th><th>Gruppe</th><th>Pers.</th><th>Vortrag</th><th>Note</th><th>Projektdateien</th><th>Profil</th><th>Stand</th></tr></thead><tbody>${rows}</tbody></table>`;
+    root.innerHTML = `<table><thead><tr><th>#</th><th>Gruppe</th><th>Pers.</th><th>Vortrag</th><th>Note</th><th>Projektabgabe</th><th>Stufe</th><th>Gesamtnote</th><th>Stand</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
   function protocolHtml(g, standalone=false){
     const ps = sumCriteria(g.presentation, presentationCriteria);
     const pr = sumCriteria(g.project, projectCriteria);
-    const baseGrade = gradeFromPercent(ps.percent);
+    const overall = overallResult(g);
+    const baseGrade = overall.grade;
     const peopleRows = g.people.slice(0,g.personCount).map((p,i)=>`<tr><td>${escapeHtml(p.name || 'Person ' + (i+1))}</td><td>${escapeHtml(tendencyLabel(p.tendency))}</td><td><strong>${escapeHtml(applyTendency(baseGrade,p.tendency,p.manualGrade))}</strong></td><td>${escapeHtml(p.comment)}</td></tr>`).join('');
     const presRows = presentationCriteria.map(c=>`<tr><td>${escapeHtml(c.label)}</td><td><span class="stars">${stars(g.presentation[c.key])}</span> (${clampRating(g.presentation[c.key])}/4) · gewichtet: ${fmt(weightedValue(g.presentation[c.key], c.max))} / ${c.max}</td></tr>`).join('');
     const projRows = projectCriteria.map(c=>`<tr><td>${escapeHtml(c.label)}</td><td><span class="stars">${stars(g.project[c.key])}</span> (${clampRating(g.project[c.key])}/4) · gewichtet: ${fmt(weightedValue(g.project[c.key], c.max))} / ${c.max}</td></tr>`).join('');
@@ -477,15 +493,15 @@
       <h3>Bewertungsprotokoll Greenfoot-Projekt</h3>
       <div class="meta"><span class="pill fixed">EF</span><span class="pill">${escapeHtml(g.name || 'unbenannte Gruppe')}</span><span class="pill">Datum: ${escapeHtml(g.date || '')}</span><span class="pill ${g.finalized?'good':'warn'}">${g.finalized?'abgeschlossen':'offen'}</span></div>
       <h4>Vortrag: automatisch berechnete Note aus Symbolbewertung</h4>
-      <table><tbody><tr><th>gewichtete Vortragspunkte</th><td>${ps.points} / ${ps.max}</td><th>Erfüllung</th><td>${ps.percent}%</td><th>Gruppen-Vortragsnote</th><td><strong>${baseGrade}</strong></td></tr></tbody></table>
+      <table><tbody><tr><th>gewichtete Vortragspunkte</th><td>${fmt(ps.points)} / ${ps.max}</td><th>Erfüllung</th><td>${ps.percent}%</td><th>Gruppen-Vortragsnote</th><td><strong>${gradeFromPercent(ps.percent)}</strong></td></tr><tr><th>Gesamtergebnis</th><td colspan="3">Vortrag 40 % + Projektabgabe 60 % = ${overall.percent}%</td><th>Gesamtnote Projekt</th><td><strong>${overall.grade}</strong></td></tr></tbody></table>
       <table><thead><tr><th>Vortragskriterium</th><th>Punkte</th></tr></thead><tbody>${presRows}</tbody></table>
       <h4>Individuelle Tendenzen</h4>
-      <table><thead><tr><th>Name</th><th>Tendenz</th><th>individuelle Vortragsnote</th><th>Kurzbegründung</th></tr></thead><tbody>${peopleRows}</tbody></table>
+      <table><thead><tr><th>Name</th><th>Tendenz</th><th>individuelle Endnote</th><th>Kurzbegründung</th></tr></thead><tbody>${peopleRows}</tbody></table>
       <h4>Kommentar zum Vortrag</h4><p>${escapeHtml(g.presentationComment).replace(/\n/g,'<br>') || '<span class="muted">kein Kommentar</span>'}</p>
-      <h4>Projektdateien: separates Kriterienprofil</h4>
-      <table><tbody><tr><th>Projektdateien</th><td>${fmt(pr.points)} / ${pr.max}</td><th>Erfüllung</th><td>${pr.percent}%</td><th>Profil</th><td><strong>${escapeHtml(profileFromPercent(pr.percent))}</strong></td></tr></tbody></table>
-      <table><thead><tr><th>Kriterium Projektdateien</th><th>Punkte</th></tr></thead><tbody>${projRows}</tbody></table>
-      <h4>Kommentar zu Projektdateien</h4><p>${escapeHtml(g.projectComment).replace(/\n/g,'<br>') || '<span class="muted">kein Kommentar</span>'}</p>
+      <h4>Projektabgabe: separates Kriterienprofil</h4>
+      <table><tbody><tr><th>Projektabgabe</th><td>${fmt(pr.points)} / ${pr.max}</td><th>Erfüllung</th><td>${pr.percent}%</td><th>Bewertungsstufe</th><td><strong>${escapeHtml(profileFromPercent(pr.percent))}</strong></td></tr></tbody></table>
+      <table><thead><tr><th>Kriterium Projektabgabe</th><th>Punkte</th></tr></thead><tbody>${projRows}</tbody></table>
+      <h4>Kommentar zur Projektabgabe</h4><p>${escapeHtml(g.projectComment).replace(/\n/g,'<br>') || '<span class="muted">kein Kommentar</span>'}</p>
     </div>`;
     if(!standalone) return body;
     return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Bewertungsprotokoll ${escapeHtml(g.name || 'Gruppe')}</title><style>
@@ -508,11 +524,11 @@
   }
 
   function peopleCsv(){
-    const rows = [['Gruppe','Kurs','Datum','Person','Vortrag Punkte','Vortrag Max','Vortrag Prozent','Gruppen-Vortragsnote','Tendenz','Individuelle Vortragsnote','Begründung','Projektdateien Punkte','Projektdateien Max','Projektdateien Prozent','Projektdateien Profil','Kommentar Vortrag','Kommentar Projektdateien']];
+    const rows = [['Gruppe','Kurs','Datum','Person','Vortrag Punkte','Vortrag Max','Vortrag Prozent','Gruppen-Vortragsnote','Tendenz','Individuelle Endnote','Begründung','Projektabgabe Punkte','Projektabgabe Max','Projektabgabe Prozent','Projektabgabe Bewertungsstufe','Gesamt Prozent','Gesamtnote Projekt','Kommentar Vortrag','Kommentar Projektabgabe']];
     state.groups.forEach(g=>{
-      const ps=sumCriteria(g.presentation,presentationCriteria), pr=sumCriteria(g.project,projectCriteria), base=gradeFromPercent(ps.percent);
+      const ps=sumCriteria(g.presentation,presentationCriteria), pr=sumCriteria(g.project,projectCriteria), overall=overallResult(g), presGrade=gradeFromPercent(ps.percent), base=overall.grade;
       g.people.slice(0,g.personCount).forEach((p,i)=>rows.push([
-        g.name||'', 'EF', g.date||'', p.name||`Person ${i+1}`, fmt(ps.points), ps.max, ps.percent, base, tendencyLabel(p.tendency), applyTendency(base,p.tendency,p.manualGrade), p.comment||'', fmt(pr.points), pr.max, pr.percent, profileFromPercent(pr.percent), g.presentationComment||'', g.projectComment||''
+        g.name||'', 'EF', g.date||'', p.name||`Person ${i+1}`, fmt(ps.points), ps.max, ps.percent, presGrade, tendencyLabel(p.tendency), applyTendency(base,p.tendency,p.manualGrade), p.comment||'', fmt(pr.points), pr.max, pr.percent, profileFromPercent(pr.percent), overall.percent, overall.grade, g.presentationComment||'', g.projectComment||''
       ]));
     });
     return '\ufeff' + rows.map(r=>r.map(csvEscape).join(';')).join('\n');
@@ -520,13 +536,13 @@
   function projectCsv(){
     const header = ['Gruppe','Kurs','Datum'];
     projectCriteria.forEach(c=>{ header.push(c.label + ' Bewertung 0-4'); header.push(c.label + ' Symbol'); header.push(c.label + ' Gewicht'); });
-    header.push('Projektdateien Punkte','Projektdateien Max','Projektdateien Prozent','Projektdateien Profil','Kommentar Projektdateien');
+    header.push('Projektabgabe Punkte','Projektabgabe Max','Projektabgabe Prozent','Projektabgabe Bewertungsstufe','Gesamt Prozent','Gesamtnote Projekt','Kommentar Projektabgabe');
     const rows=[header];
     state.groups.forEach(g=>{
       const pr=sumCriteria(g.project,projectCriteria);
       const row=[g.name||'', 'EF', g.date||''];
       projectCriteria.forEach(c=>{ row.push(clampRating(g.project[c.key])); row.push(stars(g.project[c.key])); row.push(c.max); });
-      row.push(pr.points,pr.max,pr.percent,profileFromPercent(pr.percent),g.projectComment||'');
+      const overall=overallResult(g); row.push(pr.points,pr.max,pr.percent,profileFromPercent(pr.percent),overall.percent,overall.grade,g.projectComment||'');
       rows.push(row);
     });
     return '\ufeff' + rows.map(r=>r.map(csvEscape).join(';')).join('\n');
@@ -602,10 +618,10 @@
     }; reader.readAsText(file);
   });
   document.getElementById('exportPeopleCsvBtn').addEventListener('click', ()=>{ pullForm(); saveState(); download('greenfoot_ef_notenliste_personen.csv', peopleCsv(), 'text/csv;charset=utf-8'); });
-  document.getElementById('exportProjectCsvBtn').addEventListener('click', ()=>{ pullForm(); saveState(); download('greenfoot_ef_projektdateien.csv', projectCsv(), 'text/csv;charset=utf-8'); });
+  document.getElementById('exportProjectCsvBtn').addEventListener('click', ()=>{ pullForm(); saveState(); download('greenfoot_ef_projektabgabe.csv', projectCsv(), 'text/csv;charset=utf-8'); });
   document.getElementById('printAllBtn').addEventListener('click', ()=>{
     pullForm(); saveState(); const w=window.open('', '_blank');
-    if(!w){ download('greenfoot_ef_gesamtprotokoll.html', printHtmlAll(), 'text/html;charset=utf-8'); return; }
+    if(!w){ download('greenfoot_ef_gesamtprotokoll_40_60.html', printHtmlAll(), 'text/html;charset=utf-8'); return; }
     w.document.open(); w.document.write(printHtmlAll()); w.document.close(); w.focus(); setTimeout(()=>w.print(), 300);
   });
   document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click', ()=>{
